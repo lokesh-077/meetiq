@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>MeetIQ v3 — Meeting Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#080c14;--s1:#0e1520;--s2:#141d2e;--bd:#1e2d45;--ac:#00d4ff;--ac2:#7c3aed;--ac3:#10b981;--warn:#f59e0b;--danger:#ef4444;--tx:#e2e8f0;--tx2:#7a90aa;--tx3:#4a5e74}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+header{position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:16px 36px;border-bottom:1px solid var(--bd);background:rgba(8,12,20,.95);backdrop-filter:blur(20px)}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.4rem;background:linear-gradient(135deg,var(--ac),var(--ac2));background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.vbadge{padding:2px 9px;border-radius:8px;background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.3);color:var(--ac2);font-size:.7rem;font-weight:600}
+.hright{display:flex;align-items:center;gap:10px}
+.livebtn{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:9px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#f87171;font-size:.78rem;cursor:pointer;transition:all .2s}
+.livebtn:hover{background:rgba(239,68,68,.2)}
+.ldot{width:6px;height:6px;border-radius:50%;background:var(--danger);animation:pu 1.5s infinite}
+@keyframes pu{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.4)}}
+.apiinput{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:6px 11px;color:var(--tx2);font-size:.76rem;width:200px;text-align:center;font-family:'DM Sans',sans-serif}
+.apiinput:focus{outline:none;border-color:var(--ac)}
+.tabs{position:relative;z-index:1;display:flex;gap:3px;padding:18px 36px 0;border-bottom:1px solid var(--bd);background:rgba(8,12,20,.8)}
+.tab{padding:9px 18px;border-radius:9px 9px 0 0;font-size:.83rem;cursor:pointer;color:var(--tx3);border:1px solid transparent;border-bottom:none;transition:all .2s}
+.tab.active{background:var(--s1);color:var(--tx);border-color:var(--bd)}
+.tab:hover:not(.active){color:var(--tx2)}
+main{position:relative;z-index:1;max-width:1160px;margin:0 auto;padding:28px 22px}
+.panel{display:none}.panel.active{display:block;animation:fi .3s}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.hero{text-align:center;padding:36px 0 24px}
+.hero h1{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(1.7rem,4vw,2.8rem);line-height:1.1;margin-bottom:10px}
+.g{background:linear-gradient(135deg,var(--ac),var(--ac2));background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{color:var(--tx2);font-size:.95rem;max-width:500px;margin:0 auto 28px;line-height:1.7}
+.tbadges{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:28px}
+.tbadge{display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:18px;font-size:.72rem;font-weight:600;border:1px solid}
+.tbadge.r{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.25);color:#f87171}
+.tbadge.b{background:rgba(0,212,255,.08);border-color:rgba(0,212,255,.25);color:var(--ac)}
+.tbadge.g{background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.25);color:var(--ac3)}
+.uzone{border:2px dashed var(--bd);border-radius:18px;padding:46px 36px;text-align:center;cursor:pointer;transition:all .3s;background:rgba(14,21,32,.6);max-width:580px;margin:0 auto;position:relative;overflow:hidden}
+.uzone::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(0,212,255,.05),transparent 70%);opacity:0;transition:opacity .3s}
+.uzone:hover,.uzone.dov{border-color:var(--ac);box-shadow:0 0 40px rgba(0,212,255,.12);transform:translateY(-2px)}
+.uzone:hover::before,.uzone.dov::before{opacity:1}
+.uzone input{display:none}
+.uico{font-size:2.6rem;display:block;animation:fl 3s ease-in-out infinite;margin-bottom:12px}
+@keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.uzone h3{font-family:'Syne',sans-serif;font-size:1.1rem;margin-bottom:5px}
+.uzone p{color:var(--tx2);font-size:.8rem}
+.fmts{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.fmt{padding:2px 9px;border-radius:8px;font-size:.68rem;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.15);color:var(--ac)}
+.efield{max-width:580px;margin:14px auto 0;display:flex;gap:8px;align-items:center}
+.efield label{font-size:.76rem;color:var(--tx3);white-space:nowrap}
+.efield input{flex:1;background:var(--s2);border:1px solid var(--bd);border-radius:9px;padding:9px 12px;color:var(--tx);font-size:.83rem;font-family:'DM Sans',sans-serif}
+.efield input:focus{outline:none;border-color:var(--ac)}
+.fsel{background:rgba(16,185,129,.08);border:2px solid rgba(16,185,129,.3);padding:12px 18px;border-radius:11px;display:flex;align-items:center;justify-content:space-between;max-width:580px;margin:12px auto 0}
+.finfo{display:flex;align-items:center;gap:10px}
+.fname{font-weight:500;font-size:.88rem}
+.fsize{font-size:.73rem;color:var(--tx2)}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 20px;border-radius:9px;border:none;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;cursor:pointer;transition:all .2s}
+.btn-p{background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff}
+.btn-p:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,212,255,.28)}
+.btn-g{background:transparent;color:var(--tx2);border:1px solid var(--bd)}
+.btn-g:hover{border-color:var(--ac);color:var(--ac)}
+.btn-r{background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.28)}
+.btn-r:hover{background:rgba(239,68,68,.22)}
+.prog{display:none;max-width:580px;margin:28px auto;background:var(--s1);border:1px solid var(--bd);border-radius:18px;padding:24px}
+.prog.show{display:block;animation:fi .3s}
+.phdr{display:flex;justify-content:space-between;margin-bottom:16px}
+.ptitle{font-family:'Syne',sans-serif;font-weight:700}
+.ppct{color:var(--ac);font-weight:700}
+.pbwrap{height:5px;background:var(--bd);border-radius:3px;overflow:hidden;margin-bottom:18px}
+.pb{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--ac),var(--ac2));transition:width .5s ease;position:relative}
+.pb::after{content:'';position:absolute;right:0;top:50%;transform:translateY(-50%);width:9px;height:9px;border-radius:50%;background:var(--ac);box-shadow:0 0 8px var(--ac)}
+.steps{display:flex;flex-direction:column;gap:9px}
+.step{display:flex;align-items:center;gap:9px;padding:8px 11px;border-radius:7px;font-size:.83rem;color:var(--tx2);transition:all .3s;background:var(--s2);margin-bottom:4px}
+.step.active{background:rgba(0,212,255,.08);color:var(--ac)}
+.step.done{color:var(--ac3)}
+
+
+.abar{display:flex;gap:9px;margin-bottom:24px;flex-wrap:wrap}
+.srow{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:24px}
+.sc{background:var(--s1);border:1px solid var(--bd);border-radius:13px;padding:16px;position:relative;overflow:hidden;transition:transform .2s}
+.sc:hover{transform:translateY(-2px)}
+.sc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.sc.bl::before{background:var(--ac)}.sc.pu::before{background:var(--ac2)}.sc.gr::before{background:var(--ac3)}.sc.ye::before{background:var(--warn)}.sc.re::before{background:var(--danger)}
+.slbl{font-size:.68rem;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
+.sval{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:700}
+.sval.bl{color:var(--ac)}.sval.pu{color:var(--ac2)}.sval.gr{color:var(--ac3)}.sval.ye{color:var(--warn)}.sval.re{color:var(--danger)}
+.ssub{font-size:.7rem;color:var(--tx2);margin-top:2px}
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:16px;padding:22px;margin-bottom:18px;transition:border-color .2s}
+.card:hover{border-color:rgba(0,212,255,.18)}
+.chdr{display:flex;align-items:center;gap:9px;margin-bottom:16px}
+.cico{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem}
+.cico.bl{background:rgba(0,212,255,.1)}.cico.pu{background:rgba(124,58,237,.1)}.cico.gr{background:rgba(16,185,129,.1)}.cico.ye{background:rgba(245,158,11,.1)}.cico.re{background:rgba(239,68,68,.1)}
+.ctitle{font-family:'Syne',sans-serif;font-weight:700;font-size:.97rem}
+.ccnt{margin-left:auto;padding:2px 8px;border-radius:8px;font-size:.7rem;background:var(--s2);color:var(--tx2)}
+.sumbox{background:var(--s2);border-radius:9px;padding:16px;border-left:3px solid var(--ac);font-size:.88rem;line-height:1.8;color:var(--tx2)}
+.pitem{padding:13px;border-radius:9px;background:var(--s2);margin-bottom:9px;border:1px solid transparent;transition:border-color .2s}
+.pitem:hover{border-color:var(--bd)}
+.phd{display:flex;align-items:center;gap:7px;margin-bottom:5px;flex-wrap:wrap}
+.ptl{font-weight:500;font-size:.88rem}
+.bdg{padding:2px 8px;border-radius:6px;font-size:.66rem;font-weight:600;text-transform:uppercase}
+.bh{background:rgba(239,68,68,.15);color:#f87171}.bm{background:rgba(245,158,11,.15);color:#fbbf24}.bl2{background:rgba(16,185,129,.15);color:#34d399}
+.psum{font-size:.81rem;color:var(--tx2);line-height:1.6}
+.spkgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.spkcard{background:var(--s2);border-radius:11px;padding:15px;border:1px solid var(--bd)}
+.spkhdr{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+.spkav{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:.85rem}
+.s1c{background:rgba(0,212,255,.15);color:var(--ac)}.s2c{background:rgba(124,58,237,.15);color:var(--ac2)}.s3c{background:rgba(16,185,129,.15);color:var(--ac3)}.s4c{background:rgba(245,158,11,.15);color:var(--warn)}
+.spknm{font-weight:600;font-size:.87rem}
+.spkpct{font-size:.72rem;color:var(--tx3)}
+.tbwrap{height:3px;background:var(--bd);border-radius:2px;margin-bottom:9px}
+.tbbar{height:100%;border-radius:2px}
+.spkpts{list-style:none;display:flex;flex-direction:column;gap:4px}
+.spkpts li{font-size:.76rem;color:var(--tx2);padding-left:11px;position:relative;line-height:1.5}
+.spkpts li::before{content:'›';position:absolute;left:0;color:var(--ac)}
+.spktx{background:var(--s2);border-radius:9px;padding:16px;max-height:300px;overflow-y:auto;scrollbar-width:thin}
+.txln{margin-bottom:11px;font-size:.83rem;line-height:1.7}
+.txspk{font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+.txtx{color:var(--tx2)}
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:11px}
+.tcard{background:var(--s2);border-radius:11px;padding:15px;border:1px solid var(--bd);position:relative;transition:all .2s}
+.tcard:hover{transform:translateY(-2px)}
+.tpbar{position:absolute;top:0;left:0;right:0;height:3px;border-radius:11px 11px 0 0}
+.priority-urgent .tpbar{background:var(--danger)}.priority-high .tpbar{background:var(--warn)}.priority-medium .tpbar{background:var(--ac)}.priority-low .tpbar{background:var(--ac3)}
+.ttl{font-weight:500;font-size:.85rem;margin-bottom:9px;line-height:1.5;margin-top:3px}
+.tmeta{display:flex;flex-wrap:wrap;gap:5px}
+.tmi{font-size:.68rem;color:var(--tx2);background:rgba(255,255,255,.04);padding:2px 7px;border-radius:5px}
+.ocard{background:var(--s2);border-radius:11px;padding:16px;border:1px solid var(--bd);margin-bottom:11px;display:grid;grid-template-columns:auto 1fr;gap:12px}
+.oico{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+.oico.high{background:rgba(239,68,68,.1)}.oico.medium{background:rgba(245,158,11,.1)}.oico.low{background:rgba(16,185,129,.1)}
+.oarea{font-size:.68rem;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.oiss{font-weight:500;font-size:.85rem;margin-bottom:5px}
+.osug{font-size:.79rem;color:var(--tx2);line-height:1.6}.osug::before{content:"→ ";color:var(--ac2)}
+.sentgrid{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:start}
+.sring{width:92px;height:92px;position:relative;flex-shrink:0}
+.sring svg{transform:rotate(-90deg)}
+.srtxt{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.srnum{font-family:'Syne',sans-serif;font-weight:800;font-size:1.25rem}
+.srlbl{font-size:.56rem;color:var(--tx3);text-transform:uppercase}
+.sdets{display:flex;flex-direction:column;gap:9px}
+.sovr{display:inline-flex;align-items:center;gap:6px;padding:5px 13px;border-radius:16px;font-weight:600;font-size:.8rem;width:fit-content}
+.spos{background:rgba(16,185,129,.15);color:#34d399}.sneu{background:rgba(122,144,170,.15);color:var(--tx2)}.smix{background:rgba(245,158,11,.15);color:#fbbf24}.sneg{background:rgba(239,68,68,.15);color:#f87171}
+.stone{font-size:.83rem;color:var(--tx2);line-height:1.7}
+.ritem{display:flex;gap:11px;padding:13px;background:var(--s2);border-radius:9px;margin-bottom:9px;border-left:3px solid}
+.rh{border-color:var(--danger)}.rm{border-color:var(--warn)}.rl{border-color:var(--ac3)}
+.rtl{font-weight:500;font-size:.85rem;margin-bottom:4px}
+.rmit{font-size:.78rem;color:var(--tx2)}.rmit::before{content:"💡 "}
+.emst{padding:11px 15px;border-radius:9px;font-size:.8rem;margin-top:11px}
+.em-ok{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);color:var(--ac3)}
+.em-sk{background:rgba(122,144,170,.08);border:1px solid var(--bd);color:var(--tx3)}
+.txbox{background:var(--s2);border-radius:9px;padding:16px;font-size:.81rem;line-height:2;color:var(--tx2);max-height:260px;overflow-y:auto;scrollbar-width:thin}
+.lbdg{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:8px;background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.2);color:var(--ac2);font-size:.71rem}
+.qitem{display:flex;gap:9px;align-items:flex-start;padding:9px 13px;border-radius:8px;background:var(--s2);margin-bottom:6px;font-size:.83rem;color:var(--tx2)}
+.qnum{width:19px;height:19px;border-radius:50%;background:rgba(0,212,255,.1);color:var(--ac);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;flex-shrink:0}
+.livepanel{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.lmicare{background:var(--s1);border:2px dashed var(--bd);border-radius:16px;padding:36px 22px;text-align:center}
+.lmicare.rec{border-color:var(--danger);background:rgba(239,68,68,.03)}
+.mico{font-size:2.8rem;margin-bottom:14px;display:block}
+.wform{display:flex;align-items:center;justify-content:center;gap:3px;height:36px;margin:14px 0}
+.wbar{width:4px;border-radius:2px;background:var(--danger);animation:wv .8s ease-in-out infinite}
+.wbar:nth-child(1){animation-delay:0s;height:20%}.wbar:nth-child(2){animation-delay:.1s;height:60%}.wbar:nth-child(3){animation-delay:.2s;height:40%}.wbar:nth-child(4){animation-delay:.3s;height:80%}.wbar:nth-child(5){animation-delay:.4s;height:50%}.wbar:nth-child(6){animation-delay:.3s;height:90%}.wbar:nth-child(7){animation-delay:.2s;height:30%}.wbar:nth-child(8){animation-delay:.1s;height:60%}
+@keyframes wv{0%,100%{transform:scaleY(1)}50%{transform:scaleY(2.2)}}
+.lfeed{background:var(--s1);border:1px solid var(--bd);border-radius:13px;padding:16px;height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:9px;scrollbar-width:thin}
+.litem{padding:9px 13px;border-radius:9px;background:var(--s2);border-left:3px solid var(--ac);animation:sli .3s}
+@keyframes sli{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
+.lchk{font-size:.77rem;color:var(--tx2);margin-bottom:4px}
+.lsum{font-size:.8rem;color:var(--tx);font-weight:500}
+.lacts{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.latag{padding:2px 7px;border-radius:5px;font-size:.66rem;background:rgba(0,212,255,.1);color:var(--ac);border:1px solid rgba(0,212,255,.2)}
+.liarea{background:var(--s1);border:1px solid var(--bd);border-radius:13px;padding:15px}
+.liarea textarea{width:100%;background:var(--s2);border:1px solid var(--bd);border-radius:7px;padding:9px 11px;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:.83rem;resize:vertical;min-height:80px}
+.liarea textarea:focus{outline:none;border-color:var(--ac)}
+.lstats{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.lstat{background:var(--s2);border-radius:9px;padding:11px;text-align:center}
+.lsv{font-family:'Syne',sans-serif;font-weight:700;font-size:1.3rem;color:var(--ac)}
+.lsl{font-size:.68rem;color:var(--tx3);text-transform:uppercase;letter-spacing:1px}
+.kfield{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:8px 12px;color:var(--tx);font-size:.8rem;width:100%;font-family:'DM Sans',sans-serif;margin-top:8px}
+.kfield:focus{outline:none;border-color:var(--ac)}
+.toast{position:fixed;bottom:22px;right:22px;padding:10px 16px;border-radius:9px;background:var(--ac3);color:#fff;font-size:.81rem;font-weight:500;transform:translateY(70px);opacity:0;transition:all .3s;z-index:100}
+.toast.show{transform:translateY(0);opacity:1}
+@media(max-width:768px){header{padding:13px 15px}.tabs{padding:14px 14px 0;overflow-x:auto}main{padding:18px 12px}.livepanel{grid-template-columns:1fr}.sentgrid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="logo">MeetIQ</div>
+    <span class="vbadge">v3.0 · Tier 1</span>
+  </div>
+  <div class="hright">
+    <button class="livebtn" onclick="switchTab('live')"><span class="ldot"></span>LIVE</button>
+    <input type="text" id="apiUrl" class="apiinput" value="http://localhost:8000" placeholder="Backend URL"/>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('upload')" id="tab-upload">📁 Upload</div>
+  <div class="tab" onclick="switchTab('live')" id="tab-live">🔴 Live</div>
+  <div class="tab" onclick="switchTab('results')" id="tab-results">📊 Results</div>
+</div>
+
+<main>
+
+<!-- UPLOAD TAB -->
+<div class="panel active" id="panel-upload">
+  <div class="hero">
+    <h1><span class="g">Tier 1 Upgraded</span><br>Meeting Intelligence</h1>
+    <p>Speaker detection · Auto email · 99+ languages → English · Task automation</p>
+    <div class="tbadges">
+      <span class="tbadge r">🎤 Speaker Detection</span>
+      <span class="tbadge r">📧 Auto Email</span>
+      <span class="tbadge b">🌐 99+ Languages</span>
+      <span class="tbadge g">⚡ Task Automation</span>
+    </div>
+  </div>
+
+  <div class="uzone" id="uzone">
+    <span class="uico">🎙️</span>
+    <h3>Drop your meeting file here</h3>
+    <p>or click to browse</p>
+    <div class="fmts">
+      <span class="fmt">MP4</span><span class="fmt">MP3</span><span class="fmt">WAV</span>
+      <span class="fmt">M4A</span><span class="fmt">MKV</span><span class="fmt">WebM</span>
+    </div>
+    <input type="file" id="fi" accept=".mp4,.mp3,.wav,.m4a,.mkv,.webm,.avi,.mov,.ogg"/>
+  </div>
+
+  <div class="efield">
+    <label>📧 Email summary to:</label>
+    <input type="text" id="emails" placeholder="a@co.com, b@co.com (optional)"/>
+  </div>
+
+  <div class="fsel" id="fsel" style="display:none">
+    <div class="finfo">
+      <span style="font-size:1.6rem">🎬</span>
+      <div><div class="fname" id="fname"></div><div class="fsize" id="fsize"></div></div>
+    </div>
+    <div style="display:flex;gap:7px">
+      <button class="btn btn-g" onclick="clearFile()">✕ Clear</button>
+      <button class="btn btn-p" onclick="startAnalysis()">🚀 Analyze</button>
+    </div>
+  </div>
+
+  <div class="prog" id="prog">
+    <div class="phdr"><span class="ptitle">⚙️ Processing…</span><span class="ppct" id="ppct">0%</span></div>
+    <div class="pbwrap"><div class="pb" id="pb" style="width:0%"></div></div>
+    <div class="steps">
+      <div class="step" id="s1"><span>🎬</span> Extracting &amp; cleaning audio</div>
+      <div class="step" id="s2"><span>🎙️</span> Transcribing with Whisper AI</div>
+      <div class="step" id="s3"><span>👥</span> Detecting speakers</div>
+      <div class="step" id="s4"><span>🤖</span> AI analysis → English (Groq)</div>
+      <div class="step" id="s5"><span>📧</span> Sending email summary</div>
+    </div>
+  </div>
+</div>
+
+<!-- LIVE TAB -->
+<div class="panel" id="panel-live">
+  <div style="margin-bottom:20px">
+    <h2 style="font-family:'Syne',sans-serif;font-size:1.3rem;margin-bottom:5px">🔴 Live Meeting Analysis</h2>
+    <p style="color:var(--tx2);font-size:.86rem">Type or paste what's being said → get instant AI insights. No file upload needed!</p>
+    <div style="margin-top:12px;background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:14px;max-width:560px">
+      <p style="font-size:.76rem;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">🔑 Groq API Key (for Live Analysis)</p>
+      <input type="password" id="liveGroqKey" class="kfield" placeholder="gsk_your-key-here — free at console.groq.com"
+        oninput="try{localStorage.setItem('miq_key',this.value)}catch(e){}"/>
+      <p style="font-size:.72rem;color:var(--tx3);margin-top:6px">Key is saved in your browser automatically</p>
+    </div>
+  </div>
+
+  <div class="livepanel">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="lmicare" id="lmicare">
+        <span class="mico">🎙️</span>
+        <h3 style="font-family:'Syne',sans-serif;margin-bottom:7px" id="mtitle">Ready to Start</h3>
+        <p style="color:var(--tx2);font-size:.81rem;margin-bottom:14px" id="msub">Click Start then paste what people say</p>
+        <div class="wform" id="wform" style="display:none">
+          <div class="wbar"></div><div class="wbar"></div><div class="wbar"></div>
+          <div class="wbar"></div><div class="wbar"></div><div class="wbar"></div>
+          <div class="wbar"></div><div class="wbar"></div>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+          <button class="btn btn-p" id="startbtn" onclick="startLive()">▶ Start Session</button>
+          <button class="btn btn-r" id="stopbtn" onclick="stopLive()" style="display:none">⏹ End &amp; Summarize</button>
+        </div>
+      </div>
+
+      <div class="liarea">
+        <p style="font-size:.74rem;color:var(--tx3);margin-bottom:7px;text-transform:uppercase;letter-spacing:1px">📝 Paste transcript chunk here</p>
+        <textarea id="ltxt" placeholder="Example: John said we need to finish the backend by Friday. Sarah will handle testing next week."></textarea>
+        <div style="display:flex;gap:7px;margin-top:8px">
+          <button class="btn btn-p" onclick="analyzeChunk()" style="flex:1">⚡ Analyze Chunk</button>
+          <button class="btn btn-g" onclick="document.getElementById('ltxt').value=''">Clear</button>
+        </div>
+      </div>
+
+      <div class="lstats">
+        <div class="lstat"><div class="lsv" id="lchunks">0</div><div class="lsl">Chunks</div></div>
+        <div class="lstat"><div class="lsv" id="lwords">0</div><div class="lsl">Words</div></div>
+        <div class="lstat"><div class="lsv" id="lactions">0</div><div class="lsl">Actions</div></div>
+        <div class="lstat"><div class="lsv" id="lmood">😐</div><div class="lsl">Mood</div></div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h3 style="font-family:'Syne',sans-serif;font-size:.92rem">Live Analysis Feed</h3>
+        <button class="btn btn-g" onclick="clearFeed()" style="padding:4px 10px;font-size:.72rem">Clear</button>
+      </div>
+      <div class="lfeed" id="lfeed">
+        <div style="text-align:center;color:var(--tx3);font-size:.81rem;padding:36px 0">
+          Start a session and paste transcript chunks to see live insights here…
+        </div>
+      </div>
+      <div>
+        <p style="font-size:.74rem;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;margin-bottom:7px">Live Transcript So Far</p>
+        <div class="txbox" id="ltxbox" style="max-height:140px">Nothing yet…</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RESULTS TAB -->
+<div class="panel" id="panel-results">
+  <!-- No results placeholder -->
+  <div id="no-results-msg" style="text-align:center;padding:60px 20px">
+    <div style="font-size:3rem;margin-bottom:16px">📋</div>
+    <h2 style="font-family:'Syne',sans-serif;font-size:1.3rem;margin-bottom:10px;color:var(--tx2)">No Results Yet</h2>
+    <p style="color:var(--tx3);font-size:.88rem;margin-bottom:20px">Upload a meeting file or use Live Analysis to get started</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-p" onclick="switchTab('upload')">📁 Upload Meeting</button>
+      <button class="btn btn-g" onclick="recoverResult()">🔁 Recover Last Report</button>
+    </div>
+  </div>
+
+  <div id="results-content" style="display:none">
+  <div class="abar">
+    <button class="btn btn-p" onclick="exportReport()">📄 Export Report</button>
+    <button class="btn btn-g" onclick="recoverResult()">🔁 Recover Last Report</button>
+    <button class="btn btn-g" onclick="copyTx()">📋 Copy Transcript</button>
+    <button class="btn btn-g" onclick="resetApp()">🔄 New Meeting</button>
+  </div>
+  <div class="srow" id="srow"></div>
+
+  <div class="card">
+    <div class="chdr"><div class="cico bl">📋</div><span class="ctitle">Executive Summary</span><span class="lbdg" id="lbdg" style="margin-left:auto">🌐 EN</span></div>
+    <div class="sumbox" id="sumbox"></div>
+    <div id="emstbox"></div>
+  </div>
+
+  <div class="card">
+    <div class="chdr"><div class="cico bl">👥</div><span class="ctitle">Speaker Detection</span><span class="ccnt" id="spkcnt">0</span></div>
+    <div class="spkgrid" id="spkgrid"></div>
+    <div style="margin-top:16px">
+      <p style="font-size:.74rem;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Speaker-Labeled Transcript</p>
+      <div class="spktx" id="spktxbox"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="chdr"><div class="cico bl">💬</div><span class="ctitle">Key Discussion Points</span><span class="ccnt" id="ptscnt">0</span></div>
+    <div id="ptslist"></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px" id="twocol">
+    <div class="card" style="margin-bottom:0">
+      <div class="chdr"><div class="cico gr">⚡</div><span class="ctitle">Action Items</span><span class="ccnt" id="tcnt">0</span></div>
+      <div class="tgrid" id="tgrid" style="grid-template-columns:1fr"></div>
+    </div>
+    <div class="card" style="margin-bottom:0">
+      <div class="chdr"><div class="cico ye">✅</div><span class="ctitle">Decisions Made</span><span class="ccnt" id="dcnt">0</span></div>
+      <div id="dlist"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="chdr"><div class="cico pu">🚀</div><span class="ctitle">Optimization Suggestions</span><span class="ccnt" id="ocnt">0</span></div>
+    <div id="olist"></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px">
+    <div class="card" style="margin-bottom:0">
+      <div class="chdr"><div class="cico bl">🎭</div><span class="ctitle">Sentiment Analysis</span></div>
+      <div id="sent"></div>
+    </div>
+    <div class="card" style="margin-bottom:0">
+      <div class="chdr"><div class="cico re">⚠️</div><span class="ctitle">Risks Identified</span><span class="ccnt" id="rcnt">0</span></div>
+      <div id="rlist"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="chdr"><div class="cico ye">❓</div><span class="ctitle">Open Questions</span><span class="ccnt" id="qcnt">0</span></div>
+    <div id="qlist"></div>
+  </div>
+
+  <div class="card">
+    <div class="chdr"><div class="cico pu">📝</div><span class="ctitle">Full Transcript</span></div>
+    <div class="txbox" id="txbox"></div>
+  </div>
+  </div><!-- end results-content -->
+</div>
+
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+const API=()=>document.getElementById('apiUrl').value.replace(/\/$/,'');
+let jobId=null,poll=null,rdata=null,lchunks=[],lacts=0,lActive=false;
+const semo=s=>({positive:'😊',negative:'😟',neutral:'😐',mixed:'🤔'}[s]||'😐');
+const spkclr=['var(--ac)','var(--ac2)','var(--ac3)','var(--warn)'];
+const spkcls=['s1c','s2c','s3c','s4c'];
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+window.addEventListener('load',()=>{
+  try{const k=localStorage.getItem('miq_key');if(k)document.getElementById('liveGroqKey').value=k;}catch(e){}
+});
+
+// ── TABS ──────────────────────────────────────────────────────────────────────
+function switchTab(t){
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  document.getElementById('panel-'+t).classList.add('active');
+}
+
+// ── UPLOAD ────────────────────────────────────────────────────────────────────
+const uzone=document.getElementById('uzone'),fi=document.getElementById('fi');
+uzone.addEventListener('click',()=>fi.click());
+uzone.addEventListener('dragover',e=>{e.preventDefault();uzone.classList.add('dov')});
+uzone.addEventListener('dragleave',()=>uzone.classList.remove('dov'));
+uzone.addEventListener('drop',e=>{e.preventDefault();uzone.classList.remove('dov');if(e.dataTransfer.files[0])showFile(e.dataTransfer.files[0])});
+fi.addEventListener('change',()=>{if(fi.files[0])showFile(fi.files[0])});
+
+function showFile(f){
+  document.getElementById('fname').textContent=f.name;
+  document.getElementById('fsize').textContent=(f.size/1024/1024).toFixed(1)+' MB';
+  document.getElementById('fsel').style.display='flex';
+}
+function clearFile(){fi.value='';document.getElementById('fsel').style.display='none';}
+
+async function startAnalysis(){
+  const f=fi.files[0];if(!f)return toast('Please select a file first');
+  const emails=document.getElementById('emails').value.trim();
+  const fd=new FormData();fd.append('file',f);
+  let url=`${API()}/upload`;if(emails)url+=`?emails=${encodeURIComponent(emails)}`;
+  const jid=await new Promise((res,rej)=>{
+    const xhr=new XMLHttpRequest();xhr.open('POST',url);
+    xhr.onload=()=>{
+      if(xhr.status>=200&&xhr.status<300){res(JSON.parse(xhr.responseText).job_id)}
+      else{try{rej(new Error(JSON.parse(xhr.responseText).detail||'Upload failed'))}catch{rej(new Error('Upload failed: '+xhr.status))}}
+    };
+    xhr.onerror=()=>rej(new Error('Network error — is backend running at '+API()+'?'));
+    xhr.send(fd);
+  }).catch(e=>{toast('❌ '+e.message);return null});
+  if(!jid)return;
+  jobId=jid;
+  try{localStorage.setItem('miq_jobid',jid);}catch(e){}
+  document.getElementById('prog').classList.add('show');
+  poll=setInterval(pollStatus,2000);
+}
+
+// ── PROGRESS ──────────────────────────────────────────────────────────────────
+const SMAP={queued:{p:5,s:0},extracting_audio:{p:15,s:1},transcribing:{p:45,s:2},
+            analyzing:{p:80,s:3},sending_email:{p:92,s:4},done:{p:100,s:5}};
+
+async function pollStatus(){
+  try{
+    const r=await fetch(`${API()}/status/${jobId}`);
+    if(!r.ok)return;
+    const d=await r.json();
+    const m=SMAP[d.status]||{p:d.progress||0,s:0};
+    document.getElementById('pb').style.width=m.p+'%';
+    document.getElementById('ppct').textContent=m.p+'%';
+    ['s1','s2','s3','s4','s5'].forEach((id,i)=>{
+      const el=document.getElementById(id);el.classList.remove('active','done');
+      if(i+1<m.s)el.classList.add('done');else if(i+1===m.s)el.classList.add('active');
+    });
+    if(d.status==='done'){
+      clearInterval(poll);
+      const r2=await fetch(`${API()}/result/${jobId}`);
+      rdata=await r2.json();
+      try{localStorage.setItem('miq_result',JSON.stringify(rdata));}catch(e){}
+      renderResults(rdata);
+      switchTab('results');
+      toast('✅ Analysis complete!');
+    }else if(d.status==='error'){
+      clearInterval(poll);
+      toast('❌ Error: '+d.error);
+    }
+  }catch(e){console.warn('Poll error:',e.message);}
+}
+
+// ── RECOVER LAST RESULT ───────────────────────────────────────────────────────
+async function recoverResult(){
+  // Try localStorage first
+  try{
+    const saved=localStorage.getItem('miq_result');
+    if(saved){
+      rdata=JSON.parse(saved);
+      renderResults(rdata);
+      switchTab('results');
+      toast('✅ Last report recovered!');
+      return;
+    }
+  }catch(e){}
+  // Try backend /latest
+  try{
+    toast('🔍 Fetching latest result…');
+    const r=await fetch(`${API()}/latest`);
+    if(!r.ok)throw new Error('No results found');
+    rdata=await r.json();
+    try{localStorage.setItem('miq_result',JSON.stringify(rdata));}catch(e){}
+    renderResults(rdata);
+    switchTab('results');
+    toast('✅ Report loaded: '+rdata.filename);
+  }catch(e){toast('❌ '+e.message+' — please re-upload');}
+}
+
+// ── RENDER RESULTS ────────────────────────────────────────────────────────────
+function renderResults(data){
+  const A=data.analysis||{},O=A.meeting_overview||{};
+  document.getElementById('lbdg').textContent=`🌐 ${data.language||'?'} → EN`;
+  const tasks=A.action_items||[],pts=A.key_discussion_points||[],spks=A.speaker_contributions||[];
+
+  // Stats
+  document.getElementById('srow').innerHTML=`
+    <div class="sc bl"><div class="slbl">Speakers</div><div class="sval bl">${spks.length||'—'}</div><div class="ssub">Detected</div></div>
+    <div class="sc gr"><div class="slbl">Action Items</div><div class="sval gr">${tasks.length}</div><div class="ssub">Generated</div></div>
+    <div class="sc pu"><div class="slbl">Decisions</div><div class="sval pu">${(A.decisions_made||[]).length}</div><div class="ssub">Recorded</div></div>
+    <div class="sc ye"><div class="slbl">Topics</div><div class="sval ye">${pts.length}</div><div class="ssub">Discussed</div></div>
+    <div class="sc re"><div class="slbl">Risks</div><div class="sval re">${(A.risks||[]).length}</div><div class="ssub">Found</div></div>`;
+
+  // Summary
+  document.getElementById('sumbox').textContent=A.summary||'No summary available.';
+
+  // Email status
+  const er=data.email_result||{};
+  document.getElementById('emstbox').innerHTML=
+    er.results&&er.results.length
+      ?`<div class="emst em-ok">📧 Summary emailed to: ${er.results.map(r=>r.email).join(', ')}</div>`
+      :er.status==='skipped'
+        ?`<div class="emst em-sk">📧 Email not configured — set EMAIL_SENDER in main.py</div>`:'';
+
+  // Speakers
+  document.getElementById('spkcnt').textContent=spks.length;
+  document.getElementById('spkgrid').innerHTML=spks.length
+    ?spks.map((s,i)=>{
+        const pct=s.talk_time_percent||Math.round(100/spks.length);
+        return `<div class="spkcard">
+          <div class="spkhdr">
+            <div class="spkav ${spkcls[i%4]}">${s.speaker.replace('Speaker ','S')}</div>
+            <div><div class="spknm">${s.speaker}</div><div class="spkpct">${pct}% talk time</div></div>
+            <span class="bdg ${s.sentiment==='positive'?'bl2':s.sentiment==='negative'?'bh':'bm'}" style="margin-left:auto">${semo(s.sentiment)}</span>
+          </div>
+          <div class="tbwrap"><div class="tbbar" style="width:${pct}%;background:${spkclr[i%4]}"></div></div>
+          <ul class="spkpts">${(s.key_points||[]).map(p=>`<li>${p}</li>`).join('')}</ul>
+        </div>`;
+      }).join('')
+    :'<p style="color:var(--tx3);font-size:.83rem">Speaker data not available for this recording.</p>';
+
+  // Speaker transcript
+  const stx=data.speaker_transcript||'';
+  const stxbox=document.getElementById('spktxbox');
+  if(stx){
+    stxbox.innerHTML=stx.split('\n').filter(Boolean).map(ln=>{
+      const p=ln.indexOf(': ');
+      const spk=p>-1?ln.slice(0,p):'';
+      const txt=p>-1?ln.slice(p+2):ln;
+      const i=spks.findIndex(s=>s.speaker===spk);
+      const clr=spkclr[i>=0?i%4:0];
+      return `<div class="txln"><div class="txspk" style="color:${clr}">${spk||'Speaker'}</div><div class="txtx">${txt}</div></div>`;
+    }).join('');
+  }else{stxbox.textContent=data.transcript||'No transcript.';}
+
+  // Discussion points
+  document.getElementById('ptscnt').textContent=pts.length;
+  document.getElementById('ptslist').innerHTML=pts.map(p=>`
+    <div class="pitem">
+      <div class="phd">
+        <span class="ptl">${p.topic||''}</span>
+        <span class="bdg ${p.importance==='high'?'bh':p.importance==='low'?'bl2':'bm'}">${p.importance||''}</span>
+        ${p.category?`<span class="bdg" style="background:rgba(0,212,255,.08);color:var(--tx2)">${p.category}</span>`:''}
+        ${p.speaker?`<span class="bdg" style="background:rgba(124,58,237,.08);color:var(--ac2)">👤 ${p.speaker}</span>`:''}
+      </div>
+      <div class="psum">${p.summary||''}</div>
+    </div>`).join('')||'<p style="color:var(--tx3);font-size:.81rem">None extracted.</p>';
+
+  // Action items
+  document.getElementById('tcnt').textContent=tasks.length;
+  document.getElementById('tgrid').innerHTML=tasks.map(t=>`
+    <div class="tcard priority-${t.priority||'medium'}">
+      <div class="tpbar"></div>
+      <div class="ttl">${t.task||''}</div>
+      <div class="tmeta">
+        ${t.owner?`<span class="tmi">👤 ${t.owner}</span>`:''}
+        ${t.deadline?`<span class="tmi">📅 ${t.deadline}</span>`:''}
+        ${t.estimated_hours?`<span class="tmi">⏱ ${t.estimated_hours}h</span>`:''}
+        <span class="bdg ${t.priority==='urgent'||t.priority==='high'?'bh':t.priority==='low'?'bl2':'bm'}">${t.priority||''}</span>
+      </div>
+    </div>`).join('')||'<p style="color:var(--tx3);font-size:.81rem">None found.</p>';
+
+  // Decisions
+  const decs=A.decisions_made||[];
+  document.getElementById('dcnt').textContent=decs.length;
+  document.getElementById('dlist').innerHTML=decs.map(d=>`
+    <div class="pitem">
+      <div class="phd"><span class="ptl">${d.decision||''}</span></div>
+      <div class="psum">${d.context||''}</div>
+      <div class="tmeta" style="margin-top:7px">
+        ${d.owner?`<span class="tmi">👤 ${d.owner}</span>`:''}
+        ${d.deadline?`<span class="tmi">📅 ${d.deadline}</span>`:''}
+        ${d.decided_by?`<span class="tmi">🗣 ${d.decided_by}</span>`:''}
+      </div>
+    </div>`).join('')||'<p style="color:var(--tx3);font-size:.81rem">None recorded.</p>';
+
+  // Optimization
+  const opts=A.optimization_suggestions||[];
+  const ic={high:'🔴',medium:'🟡',low:'🟢'};
+  document.getElementById('ocnt').textContent=opts.length;
+  document.getElementById('olist').innerHTML=opts.map(o=>`
+    <div class="ocard">
+      <div class="oico ${o.impact||'medium'}">${ic[o.impact]||'💡'}</div>
+      <div><div class="oarea">${o.area||''}</div><div class="oiss">${o.issue||''}</div><div class="osug">${o.suggestion||''}</div></div>
+    </div>`).join('')||'<p style="color:var(--tx3);font-size:.81rem">None.</p>';
+
+  // Sentiment
+  const SA=A.sentiment_analysis||{};
+  const sc=SA.sentiment_score||0;
+  const nm=Math.round(((sc+1)/2)*100);
+  const cl=sc>.2?'#10b981':sc<-.2?'#ef4444':'#7a90aa';
+  const R=40,C=2*Math.PI*R;
+  const sentCls={'positive':'spos','neutral':'sneu','mixed':'smix','negative':'sneg'}[SA.overall_sentiment||'neutral']||'sneu';
+  document.getElementById('sent').innerHTML=`
+    <div class="sentgrid">
+      <div class="sring">
+        <svg width="92" height="92" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="${R}" fill="none" stroke="var(--bd)" stroke-width="8"/>
+          <circle cx="50" cy="50" r="${R}" fill="none" stroke="${cl}" stroke-width="8"
+            stroke-dasharray="${C}" stroke-dashoffset="${C-(nm/100)*C}" stroke-linecap="round"/>
+        </svg>
+        <div class="srtxt">
+          <span class="srnum" style="color:${cl}">${sc>=0?'+':''}${sc.toFixed(1)}</span>
+          <span class="srlbl">score</span>
+        </div>
+      </div>
+      <div class="sdets">
+        <div class="sovr ${sentCls}">${semo(SA.overall_sentiment)} ${(SA.overall_sentiment||'neutral').toUpperCase()}</div>
+        <div style="font-size:.72rem;color:var(--tx3)">Energy: ${SA.energy_level||'—'}</div>
+        <div class="stone">${SA.tone_description||''}</div>
+        ${(SA.notable_moments||[]).map(m=>`<div style="font-size:.74rem;color:var(--tx3)">${semo(m.sentiment)} ${m.moment}${m.speaker?` — <span style="color:var(--ac2)">${m.speaker}</span>`:''}</div>`).join('')}
+      </div>
+    </div>`;
+
+  // Risks
+  const risks=A.risks||[];
+  document.getElementById('rcnt').textContent=risks.length;
+  document.getElementById('rlist').innerHTML=risks.map(r=>`
+    <div class="ritem r${r.severity==='high'?'h':r.severity==='medium'?'m':'l'}">
+      <div><div class="rtl">${r.risk||''}</div><div class="rmit">${r.mitigation||''}</div></div>
+    </div>`).join('')||'<p style="color:var(--tx3);font-size:.81rem">None.</p>';
+
+  // Questions
+  const qs=A.open_questions||[];
+  document.getElementById('qcnt').textContent=qs.length;
+  document.getElementById('qlist').innerHTML=qs.map((q,i)=>`
+    <div class="qitem"><div class="qnum">${i+1}</div><div>${q}</div></div>`).join('')||'<p style="color:var(--tx3);font-size:.81rem">None.</p>';
+
+  // Transcript
+  document.getElementById('txbox').textContent=data.transcript||'No transcript.';
+
+  document.getElementById('no-results-msg').style.display='none';
+  document.getElementById('results-content').style.display='block';
+  // Switch to results tab
+  document.getElementById('tab-results').classList.add('active');
+}
+
+// ── LIVE ANALYSIS (Direct Groq — no backend needed) ───────────────────────────
+const LIVE_PROMPT=`Analyse this meeting transcript chunk. English only. Return ONLY valid JSON:
+{"key_points":["<point>"],"action_items":["<action>"],"sentiment":"positive|neutral|negative","summary":"<1-2 sentences>"}
+TRANSCRIPT: {TEXT}`;
+
+const FINAL_PROMPT=`You are an expert multilingual meeting analyst. Analyse this full transcript and return ONLY valid JSON (no markdown):
+{"meeting_overview":{"main_topic":"<topic>","estimated_duration_minutes":null,"participant_count":null,"meeting_type":"other","speakers_identified":[]},"summary":"<3-5 sentence executive summary>","speaker_contributions":[],"key_discussion_points":[{"topic":"<title>","summary":"<2-3 sentences>","importance":"high|medium|low","category":"other","speaker":""}],"decisions_made":[{"decision":"<decision>","context":"<context>","owner":"<owner>","deadline":null,"decided_by":""}],"action_items":[{"task":"<task>","owner":"<owner>","priority":"urgent|high|medium|low","deadline":null,"category":"other","estimated_hours":null,"assigned_by":""}],"optimization_suggestions":[{"area":"<area>","issue":"<issue>","suggestion":"<suggestion>","impact":"medium"}],"sentiment_analysis":{"overall_sentiment":"neutral","sentiment_score":0,"tone_description":"<description>","energy_level":"medium","notable_moments":[]},"open_questions":[],"risks":[]}
+TRANSCRIPT: {TEXT}`;
+
+async function callGroq(prompt){
+  const key=document.getElementById('liveGroqKey').value.trim();
+  if(!key){toast('❌ Enter your Groq API key first!');return null;}
+  try{
+    const resp=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+      method:'POST',mode:'cors',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+      body:JSON.stringify({
+        model:'llama-3.3-70b-versatile',
+        messages:[
+          {role:'system',content:'Meeting analyst. English only. Return valid JSON only, no markdown, no extra text.'},
+          {role:'user',content:prompt}
+        ],
+        temperature:0.2,max_tokens:1500
+      })
+    });
+    const d=await resp.json();
+    if(!resp.ok)throw new Error(d.error?.message||'Groq error '+resp.status);
+    let raw=d.choices[0].message.content.trim();
+    if(raw.startsWith('```')){raw=raw.split('```')[1];if(raw.startsWith('json'))raw=raw.slice(4);}
+    return JSON.parse(raw.trim());
+  }catch(e){toast('❌ '+e.message);console.error(e);return null;}
+}
+
+function startLive(){
+  lchunks=[];lacts=0;lActive=true;updateLS();
+  document.getElementById('lmicare').classList.add('rec');
+  document.getElementById('mtitle').textContent='🔴 Session Active';
+  document.getElementById('msub').textContent='Paste transcript chunks below and click Analyze Chunk';
+  document.getElementById('wform').style.display='flex';
+  document.getElementById('startbtn').style.display='none';
+  document.getElementById('stopbtn').style.display='inline-flex';
+  document.getElementById('lfeed').innerHTML='';
+  toast('🔴 Live session started!');
+}
+
+async function analyzeChunk(){
+  const txt=document.getElementById('ltxt').value.trim();
+  if(!txt)return toast('Please paste some transcript text first');
+  if(!lActive)return toast('Click ▶ Start Session first');
+  lchunks.push(txt);
+  document.getElementById('ltxt').value='';
+  document.getElementById('ltxbox').textContent=lchunks.join(' ');
+  updateLS();
+
+  // Show loading
+  const fd=document.getElementById('lfeed');
+  const loadEl=document.createElement('div');
+  loadEl.className='litem';loadEl.id='load-el';
+  loadEl.innerHTML='<div class="lchk">Analyzing…</div><div class="lsum" style="color:var(--tx3)">⏳ Calling Groq AI…</div>';
+  fd.appendChild(loadEl);fd.scrollTop=fd.scrollHeight;
+
+  const recent=lchunks.slice(-4).join(' ');
+  const ana=await callGroq(LIVE_PROMPT.replace('{TEXT}',recent));
+  const le=document.getElementById('load-el');if(le)le.remove();
+
+  if(ana){
+    const el=document.createElement('div');
+    el.className='litem';
+    el.innerHTML=`
+      <div class="lchk">"${txt.slice(0,80)}${txt.length>80?'...':''}"</div>
+      <div class="lsum">${ana.summary||''}</div>
+      <div class="lacts">
+        ${(ana.action_items||[]).map(t=>`<span class="latag">⚡ ${t}</span>`).join('')}
+        ${(ana.key_points||[]).map(p=>`<span class="latag" style="background:rgba(124,58,237,.1);color:var(--ac2);border-color:rgba(124,58,237,.2)">💡 ${p}</span>`).join('')}
+      </div>`;
+    fd.appendChild(el);fd.scrollTop=fd.scrollHeight;
+    lacts+=(ana.action_items||[]).length;
+    updateLS(ana.sentiment);
+  }
+}
+
+async function stopLive(){
+  lActive=false;
+  document.getElementById('lmicare').classList.remove('rec');
+  document.getElementById('mtitle').textContent='Generating Summary…';
+  document.getElementById('msub').textContent='Please wait…';
+  document.getElementById('wform').style.display='none';
+  document.getElementById('startbtn').style.display='inline-flex';
+  document.getElementById('stopbtn').style.display='none';
+
+  if(lchunks.length===0){toast('No transcript to summarize');return;}
+  toast('⏳ Generating final summary…');
+
+  const ana=await callGroq(FINAL_PROMPT.replace('{TEXT}',lchunks.join(' ')));
+  if(ana){
+    rdata={analysis:ana,transcript:lchunks.join(' '),speaker_transcript:'',language:'LIVE',filename:'Live Session',email_result:{}};
+    try{localStorage.setItem('miq_result',JSON.stringify(rdata));}catch(e){}
+    renderResults(rdata);
+    switchTab('results');
+    toast('✅ Summary ready!');
+  }
+  document.getElementById('mtitle').textContent='Session Complete';
+  document.getElementById('msub').textContent='Start a new session anytime';
+}
+
+function updateLS(s){
+  document.getElementById('lchunks').textContent=lchunks.length;
+  document.getElementById('lwords').textContent=lchunks.join(' ').split(/\s+/).filter(Boolean).length;
+  document.getElementById('lactions').textContent=lacts;
+  if(s)document.getElementById('lmood').textContent=semo(s);
+}
+function clearFeed(){
+  document.getElementById('lfeed').innerHTML='<div style="text-align:center;color:var(--tx3);font-size:.81rem;padding:36px 0">Feed cleared</div>';
+  lchunks=[];lacts=0;updateLS();
+}
+
+// ── EXPORT ────────────────────────────────────────────────────────────────────
+function exportReport(){
+  if(!rdata){toast('No report to export');return;}
+  const A=rdata.analysis||{};
+  const spks=A.speaker_contributions||[];
+  const lines=[
+    '═'.repeat(68),'       📋 MeetIQ v3.0 — MEETING ANALYSIS REPORT','═'.repeat(68),
+    `Language: ${rdata.language||'?'} → English  |  File: ${rdata.filename||'?'}`,
+    `Generated: ${new Date().toLocaleString()}`,'',
+    '👥 SPEAKERS DETECTED','─'.repeat(68),
+    ...spks.map(s=>`${s.speaker} (${s.talk_time_percent||'?'}% talk) — ${s.sentiment}\n   ${(s.key_points||[]).join(' | ')}`),
+    spks.length?'':'  No speaker data','',
+    '📋 EXECUTIVE SUMMARY','─'.repeat(68),A.summary||'','',
+    '📌 KEY DISCUSSION POINTS','─'.repeat(68),
+    ...(A.key_discussion_points||[]).map((p,i)=>`${i+1}. [${(p.importance||'').toUpperCase()}] ${p.topic||''}${p.speaker?' ('+p.speaker+')':''}\n   ${p.summary||''}`),
+    '','⚡ ACTION ITEMS','─'.repeat(68),
+    ...(A.action_items||[]).map((t,i)=>`${i+1}. [${(t.priority||'').toUpperCase()}] ${t.task||''}\n   Owner: ${t.owner||'TBD'} | Deadline: ${t.deadline||'TBD'}`),
+    '','✅ DECISIONS MADE','─'.repeat(68),
+    ...(A.decisions_made||[]).map((d,i)=>`${i+1}. ${d.decision||''}\n   Owner: ${d.owner||''}`),
+    '','🚀 OPTIMIZATION SUGGESTIONS','─'.repeat(68),
+    ...(A.optimization_suggestions||[]).map((o,i)=>`${i+1}. [${(o.impact||'').toUpperCase()}] ${o.area||''}: ${o.issue||''}\n   → ${o.suggestion||''}`),
+    '','⚠️ RISKS','─'.repeat(68),
+    ...(A.risks||[]).map((r,i)=>`${i+1}. [${(r.severity||'').toUpperCase()}] ${r.risk||''}\n   → ${r.mitigation||''}`),
+    '','📝 TRANSCRIPT','─'.repeat(68),
+    rdata.speaker_transcript||rdata.transcript||'','═'.repeat(68)
+  ];
+  const blob=new Blob([lines.join('\n')],{type:'text/plain;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`MeetIQ_Report_${new Date().toISOString().slice(0,10)}.txt`;
+  a.click();
+  toast('✅ Report exported!');
+}
+
+function copyTx(){
+  if(!rdata){toast('No transcript to copy');return;}
+  navigator.clipboard.writeText(rdata.speaker_transcript||rdata.transcript||'');
+  toast('📋 Transcript copied!');
+}
+
+function resetApp(){
+  rdata=null;jobId=null;lchunks=[];lacts=0;lActive=false;
+  document.getElementById('prog').classList.remove('show');
+  document.getElementById('fsel').style.display='none';
+  document.getElementById('tab-results').style.display='none';
+  document.getElementById('no-results-msg').style.display='block';
+  document.getElementById('results-content').style.display='none';
+  fi.value='';
+  switchTab('upload');
+  toast('🔄 Ready for new meeting!');
+}
+
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+function checkW(){
+  const g=document.getElementById('twocol');
+  if(g)g.style.gridTemplateColumns=window.innerWidth<768?'1fr':'1fr 1fr';
+}
+window.addEventListener('resize',checkW);checkW();
+</script>
+</body>
+</html>
