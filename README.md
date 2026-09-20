@@ -46,6 +46,36 @@ MeetIQ is built with modern, reliable, and lightweight open-source technologies:
 
 ---
 
+## 📁 Repository Structure
+
+```text
+meetiq/
+├── 📁 app/               # Web Application Dashboard & FastAPI Server
+│   ├── index.html        # Interactive Cyber-Glassmorphic UI
+│   ├── main.py           # Application Entry Point
+│   └── requirements.txt  # Python Dependencies
+├── 📁 core/              # Core Intelligence Engines
+│   ├── audio.py          # Whisper 16kHz Diarization
+│   ├── bot.py            # Playwright Google Meet Automation
+│   ├── config.py         # Settings & Config Loader
+│   ├── gemini.py         # Gemini 3.5 Multilingual Synthesis
+│   ├── mailer.py         # Silent Gmail SMTP Dispatcher
+│   └── pdf_generator.py  # Multi-Section Executive PDF Generator
+├── 📁 docs/              # Documentation & Architecture
+│   ├── ARCHITECTURE.md   # Pipeline Flowcharts & System Design
+│   └── API_REFERENCE.md  # REST API Endpoints Specification
+├── 📁 outputs/           # Generated Executive PDF Reports (.gitkeep)
+├── 📁 prompts/           # AI Prompt Schemas & Guidelines
+│   └── meeting_analysis.json
+├── 📁 samples/           # Sample Test Media (.gitkeep)
+├── 📁 uploads/           # Audio Buffer (.gitkeep)
+├── .env.example          # Configuration Template
+├── .gitignore            # Security & Git Rules
+└── README.md             # Master Documentation
+```
+
+---
+
 ##  How to Run MeetIQ (Step-by-Step)
 
 Follow these simple steps to run MeetIQ on your computer:
@@ -80,7 +110,7 @@ Follow these simple steps to run MeetIQ on your computer:
 
 3. **Install dependencies:**
    ```bash
-   pip install -r requirements.txt
+   pip install -r app/requirements.txt
    playwright install
    ```
 
@@ -116,7 +146,7 @@ WHISPER_MODEL=small
 
 Run the server with Python:
 ```bash
-python main.py
+python app/main.py
 ```
 
 Now open your web browser and navigate to:

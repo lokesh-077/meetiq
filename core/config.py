@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     gemini_model: str = "gemini-3.5-flash"
     
     upload_dir: Path = Path("uploads")
-    reports_dir: Path = Path("reports")
+    reports_dir: Path = Path("outputs")
     samples_dir: Path = Path("samples")
 
     class Config:

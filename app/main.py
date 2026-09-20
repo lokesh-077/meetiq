@@ -8,6 +8,7 @@ MeetIQ v4.0 — Autonomous Meeting Intelligence System
 """
 
 import os
+import sys
 import json
 import uuid
 import asyncio
@@ -15,6 +16,11 @@ import logging
 from pathlib import Path
 from datetime import datetime
 from typing import Optional, List
+
+# Ensure parent directory is in sys.path so core imports resolve cleanly
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, BackgroundTasks, Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -67,7 +73,10 @@ def favicon():
 
 @app.get("/")
 def serve_frontend():
+    # Check app/index.html first, then root index.html
     index_file = Path(__file__).parent / "index.html"
+    if not index_file.exists():
+        index_file = PROJECT_ROOT / "index.html"
     if index_file.exists():
         return FileResponse(index_file)
     return {"message": "MeetIQ v4.0 API is active"}
@@ -256,7 +265,7 @@ def job_result(job_id: str):
 # ── REPORTS ARCHIVE & DOWNLOAD ────────────────────────────────────────────────
 @app.get("/api/reports")
 def list_reports():
-    """List all generated PDF reports from the reports/ directory with metadata"""
+    """List all generated PDF reports from the outputs/ directory with metadata"""
     reports = []
     pdf_files = sorted(settings.reports_dir.glob("*.pdf"), key=os.path.getmtime, reverse=True)
     
@@ -367,4 +376,4 @@ if __name__ == "__main__":
     logger.info(f"Gemini API Key: {'Configured' if settings.gemini_api_key else 'Missing'}")
     logger.info(f"Email Dispatch: {settings.email_sender or 'Not configured'}")
     logger.info(f"Dashboard available at: http://localhost:{settings.port}")
-    uvicorn.run("main:app", host=settings.host, port=settings.port, reload=False)
+    uvicorn.run("app.main:app", host=settings.host, port=settings.port, reload=False)

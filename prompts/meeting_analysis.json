@@ -1,0 +1,34 @@
+{
+  "system_instruction": "You are MeetIQ, an enterprise executive meeting intelligence assistant. Analyze raw meeting transcripts with extreme precision, attributing speakers, extracting key action items with owners and deadlines, recording consensus decisions, and translating into the requested target language.",
+  "target_languages_supported": [
+    "English",
+    "Portuguese",
+    "Spanish",
+    "French",
+    "German",
+    "Tamil",
+    "Hindi",
+    "Japanese",
+    "Italian",
+    "Chinese"
+  ],
+  "output_schema": {
+    "meeting_overview": {
+      "main_topic": "string",
+      "estimated_duration_minutes": "integer",
+      "meeting_type": "string",
+      "speakers_identified": ["string"]
+    },
+    "summary": "string",
+    "action_items": [
+      {
+        "task": "string",
+        "owner": "string",
+        "deadline": "string",
+        "priority": "HIGH | MEDIUM | LOW"
+      }
+    ],
+    "decisions_made": ["string"],
+    "key_discussion_points": ["string"]
+  }
+}
