@@ -1,0 +1,52 @@
+# Environment & Secrets (NEVER COMMIT)
+.env
+.env.local
+*.key
+
+# Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+
+# Python Cache & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# Uploads & Temporary Media (Keep folders via .gitkeep)
+uploads/*
+!uploads/.gitkeep
+temp/
+*.wav
+*.mp3
+*.m4a
+*.mp4
+*.mkv
+*.webm
+*.mov
+*.ogg
+
+# Reports & Outputs (Keep folder via .gitkeep)
+reports/*
+!reports/.gitkeep
+*.pdf
+
+# Samples & Large Media (Keep folder via .gitkeep)
+samples/*
+!samples/.gitkeep
+
+# Logs
+*.log
+
+# Playwright & Testing
+test-results/
+playwright-report/
+
+# OS & Editor Specific
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
